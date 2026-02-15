@@ -5,7 +5,8 @@ self.addEventListener('install',e=>{
     'index.html',
     'style.css',
     'app.js',
-    'data.js'
+    'data.js',
+    'manifest.json'
    ]);
   })
  );

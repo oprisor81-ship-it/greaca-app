@@ -1,304 +1,344 @@
 const content=document.getElementById("content");
 
-/* DB LOCALĂ */
+/* ===== QUIZ GLOBAL ===== */
 
-let db=JSON.parse(localStorage.getItem("greekDB"));
+let scor=0;
+let intrebareCurenta=0;
 
-if(!db){
- db={
-  words:[...vocabular,...biblic],
-  mistakes:{},
-  learned:{}
- };
- localStorage.setItem("greekDB",JSON.stringify(db));
+const quizData=[
+ {q:"Cum se spune «Dumnezeu»?",a:["Θεός","Λόγος","Ζωή"],c:0},
+ {q:"«Cuvânt» în greacă?",a:["Λόγος","Φῶς","Ψυχή"],c:0},
+ {q:"«Dragoste»?",a:["Ειρήνη","Αγάπη","Χαρά"],c:1},
+ {q:"«Viață»?",a:["Ζωή","Θάλασσα","Άνεμος"],c:0},
+ {q:"«Lumină»?",a:["Φῶς","Σκότος","Γη"],c:0},
+ {q:"«Întuneric»?",a:["Φῶς","Σκότος","Οὐρανός"],c:1},
+ {q:"«Cer»?",a:["Οὐρανός","Γῆ","Νερό"],c:0},
+ {q:"«Pământ»?",a:["Γῆ","Οὐρανός","Δόξα"],c:0},
+ {q:"«Pace»?",a:["Ειρήνη","Δόξα","Ψυχή"],c:0},
+ {q:"«Har»?",a:["Χάρις","Ἀλήθεια","Κόσμος"],c:0},
+ {q:"«Adevăr»?",a:["Ἀλήθεια","Σοφία","Ζωή"],c:0},
+ {q:"«Credință»?",a:["Πίστις","Ἐλπίς","Ἀγάπη"],c:0},
+ {q:"«Nădejde»?",a:["Πίστις","Ἐλπίς","Χαρά"],c:1},
+ {q:"«Slavă»?",a:["Δόξα","Φῶς","Ζωή"],c:0},
+ {q:"«Împărăție»?",a:["Βασιλεία","Οὐρανός","Λόγος"],c:0},
+ {q:"«Rugăciune»?",a:["Προσευχή","Ἀγάπη","Σταυρός"],c:0},
+ {q:"«Cruce»?",a:["Σταυρός","Θυσία","Ἀνάστασις"],c:0},
+ {q:"«Înviere»?",a:["Ἀνάστασις","Ζωή","Χάρις"],c:0},
+ {q:"«Biserică»?",a:["Ἐκκλησία","Κόσμος","Σῶμα"],c:0},
+ {q:"«Duh Sfânt»?",a:["Πνεῦμα Ἅγιον","Λόγος","Θεός"],c:0}
+];
+
+/* ===== NAVIGAȚIE ===== */
+
+function show(sec){
+
+let html="";
+
+/* LECȚII */
+if(sec==="lectii"){
+lectii.forEach(l=>{
+html+=`<h2>${l.titlu}</h2><pre>${l.continut}</pre>`;
+});
 }
-if('serviceWorker' in navigator){
- navigator.serviceWorker.register('sw.js');
-}
-/* AUDIO PRONUNȚIE */
-
-function speak(text){
- let msg=new SpeechSynthesisUtterance(text);
- msg.lang="el-GR";
- speechSynthesis.speak(msg);
-}
-
-/* DARK MODE */
-
-function toggleDark(){
- document.body.classList.toggle("dark");
- localStorage.setItem("dark",
- document.body.classList.contains("dark"));
-}
-
-if(localStorage.getItem("dark")==="true")
- document.body.classList.add("dark");
 
 /* VOCABULAR */
-
-function showVocab(){
-
- content.innerHTML=db.words.map(v=>`
-  <div class="card">
-   <div class="greek" onclick="speak('${v.g}')">
-    ${v.g}
-   </div>
-   ${v.r}
-  </div>
- `).join("");
+else if(sec==="vocab"){
+vocabular.forEach(v=>{
+html+=`
+<p>
+<b>${v.g}</b>
+<button onclick="speak('${v.g}')">🔊</button>
+<br>${v.r}
+</p>`;
+});
 }
 
 /* EXPRESII */
-
-function showExpr(){
-
- content.innerHTML=expresii.map(v=>`
-  <div class="card">
-   <div class="greek" onclick="speak('${v.g}')">
-    ${v.g}
-   </div>
-   ${v.r}
-  </div>
- `).join("");
+else if(sec==="expr"){
+expresii.forEach(e=>{
+html+=`
+<p>
+<b>${e.g}</b>
+<button onclick="speak('${e.g}')">🔊</button>
+<br>${e.r}
+</p>`;
+});
 }
 
 /* BIBLIC */
+else if(sec==="biblic"){
+html+="<h2>📖 Dicționar Biblic Greacă–Română</h2>";
 
-function showBiblic(){
-
- content.innerHTML=biblic.map(v=>`
-  <div class="card">
-   <div class="greek" onclick="speak('${v.g}')">
-    ${v.g}
-   </div>
-   ${v.r}
-  </div>
- `).join("");
+biblic.forEach(b=>{
+html+=`
+<p>
+<b>${b.g}</b>
+<button onclick="speak('${b.g}')">🔊</button>
+<br>${b.r}
+</p>`;
+});
 }
+/* === Liturghia === */
 
+else if(sec==="liturghie"){
+
+liturghia.forEach(l=>{
+html+=`
+<h3>${l.titlu}</h3>
+<p>
+<b>${l.gr}</b>
+<button onclick="speak('${l.gr}')">🔊</button>
+<br>${l.ro}
+<br><i>${l.exp}</i>
+</p>`;
+});
+
+}
 /* GRAMATICĂ */
 
-function showGram(){
-
- content.innerHTML=gramatica.map(g=>
- `<div class="card">${g}</div>`
- ).join("");
+else if(sec==="gram"){
+gramatica.forEach(g=>{
+html+=`<div class="gramatica">${g}</div>`;
+});
 }
 
 /* RUGĂCIUNI */
-
-function showRug(){
-
- content.innerHTML=rugaciuni.map(r=>`
-  <div class="card">
-   <h3>${r.titlu}</h3>
-   ${r.versuri.map(v=>`
-    <p onclick="speak('${v.gr}')">
-     <b>${v.gr}</b><br>${v.ro}
-    </p>
-   `).join("")}
-  </div>
- `).join("");
+else if(sec==="rug"){
+rugaciuni.forEach(r=>{
+html+=`<h3>${r.titlu}</h3>`;
+r.versuri.forEach(v=>{
+html+=`
+<p>
+${v.gr}
+<button onclick="speak('${v.gr}')">🔊</button>
+<br>${v.ro}
+</p>`;
+});
+});
 }
 
-/* QUIZ ADAPTIV */
+else if(sec==="nt"){
+
+noulTestament.forEach(v=>{
+html+=`
+<h3>${v.ref}</h3>
+<p>
+<b>${v.gr}</b>
+<button onclick="speak('${v.gr}')">🔊</button>
+<br>${v.ro}
+<br><i>${v.exp}</i>
+</p>`;
+});
+
+}
+
+/* QUIZ */
+else if(sec==="quiz"){
+scor=0;
+intrebareCurenta=0;
+quiz();
+return;
+}
+
+/* AI PROFESOR */
+else if(sec==="ai"){
+aiProfesor();
+return;
+}
+
+/* DEFAULT */
+else{
+html="<h2>Secțiune în lucru</h2>";
+}
+
+content.innerHTML=html;
+}
+
+/* ===== QUIZ ===== */
 
 function quiz(){
 
- let words=db.words.sort((a,b)=>
- (db.mistakes[b.g]||0)-
- (db.mistakes[a.g]||0));
-
- let w=words[0];
-
- let opt=[
-  w.g,
-  words[Math.floor(Math.random()*words.length)].g,
-  words[Math.floor(Math.random()*words.length)].g
- ].sort(()=>Math.random()-0.5);
-
- content.innerHTML=`
-  <div class="card">
-   <h3>${w.r}</h3>
-   ${opt.map(o=>
-    `<button onclick="check('${o}','${w.g}')">
-     ${o}
-    </button>`
-   ).join("")}
-  </div>`;
+if(intrebareCurenta>=quizData.length){
+content.innerHTML=`
+<h2>Scor: ${scor}/${quizData.length}</h2>
+<button onclick="show('quiz')">Reia Quiz</button>`;
+return;
 }
 
-function check(a,b){
+let q=quizData[intrebareCurenta];
+let rasp=[...q.a].sort(()=>Math.random()-0.5);
 
- if(a===b){
-  db.learned[b]=true;
-  alert("✔ Corect");
- }else{
-  db.mistakes[b]=(db.mistakes[b]||0)+1;
-  alert("❌ Greșit");
- }
+let html=`<h2>${q.q}</h2>`;
 
- localStorage.setItem("greekDB",JSON.stringify(db));
- quiz();
+rasp.forEach(r=>{
+html+=`<button onclick='raspuns("${r}","${q.a[q.c]}")'>${r}</button><br>`;
+});
+
+content.innerHTML=html;
 }
 
-/* ADAUGARE CUVINTE */
+function raspuns(ales,corect){
 
-function addWord(){
+let butoane=document.querySelectorAll("#content button");
 
- content.innerHTML=`
- <div class="card">
-  <h3>Adaugă cuvânt / expresie</h3>
-  <input id="g" placeholder="Greacă">
-  <input id="r" placeholder="Română">
-  <button onclick="saveWord()">Salvează</button>
- </div>`;
+butoane.forEach(b=>{
+if(b.innerText===corect){
+b.style.background="green";
+b.style.color="white";
+}
+if(b.innerText===ales && ales!==corect){
+b.style.background="red";
+b.style.color="white";
+}
+});
+
+speak(ales);
+
+if(ales===corect) scor++;
+
+setTimeout(()=>{
+intrebareCurenta++;
+quiz();
+},1500);
 }
 
-function saveWord(){
+/* ===== AUDIO PRO STABIL ===== */
 
- let g=document.getElementById("g").value;
- let r=document.getElementById("r").value;
+function speak(text){
 
- if(!g || !r) return alert("Completează!");
+speechSynthesis.cancel();
 
- db.words.push({g,r});
- localStorage.setItem("greekDB",JSON.stringify(db));
+let u=new SpeechSynthesisUtterance(text);
+u.lang="el-GR";
+u.rate=0.9;
 
- showVocab();
+let voices=speechSynthesis.getVoices();
+
+if(!voices.length){
+speechSynthesis.onvoiceschanged=()=>speak(text);
+return;
 }
 
-/* AI INTEGRAT (DEMO) */
+let v=voices.find(v=>v.lang.includes("el"));
+if(v) u.voice=v;
 
-async function askAI(){
-
- let text=prompt("Întreabă AI despre greacă:");
-
- if(!text) return;
-
- alert("Pentru AI real trebuie server API.\nAcum e demo.");
-
+speechSynthesis.speak(u);
 }
 
-/* NAVIGARE */
+function dictionar(){
 
-function show(type){
+content.innerHTML=`
+<h2>📖 Dicționar greacă</h2>
 
- if(type==="vocab") showVocab();
- if(type==="expr") showExpr();
- if(type==="biblic") showBiblic();
- if(type==="gram") showGram();
- if(type==="rug") showRug();
- if(type==="quiz") quiz();
- if(type==="lectii") showLectii();
- if(type==="add") addWord();
+<input id="cuv" placeholder="Scrie cuvânt grecesc sau român"
+style="width:80%;padding:10px">
+
+<br><br>
+
+<button onclick="cauta()">Traducere</button>
+
+<div id="rezultat"></div>
+`;
 }
 
-/* PORNIRE */
+function cauta(){
 
-showVocab();
-/*/* ================= AI OFFLINE PROFESOR ================= */
+let cuv=document.getElementById("cuv").value.toLowerCase();
 
-function askAI(){
+let rezultat="Nu am găsit.";
 
- let q=prompt("Întreabă profesorul AI:");
+[...vocabular,...biblic,...expresii].forEach(v=>{
 
- if(!q) return;
+if(v.g.toLowerCase()===cuv ||
+v.r.toLowerCase()===cuv){
 
- q=q.toLowerCase();
-
- /* TRADUCERI DIN DB */
-
- let all=[...db.words,...expresii,...biblic];
-
- for(let w of all){
-
-  if(q.includes(w.r.toLowerCase())){
-   alert(`Greacă: ${w.g}`);
-   return;
-  }
-
-  if(q.includes(w.g.toLowerCase())){
-   alert(`Română: ${w.r}`);
-   return;
-  }
- }
-
- /* GRAMATICA */
-
- if(q.includes("articol")){
-  alert("Ο, Η, Το = articole hotărâte.");
-  return;
- }
-
- if(q.includes("verbul a fi")){
-  alert("Είμαι = eu sunt, Είσαι = tu ești.");
-  return;
- }
-
- /* CONVERSAȚIE SIMULATĂ */
-
- if(q.includes("salut")){
-  alert("Καλημέρα! Τι κάνεις;");
-  return;
- }
-
- /* DEFAULT */
-
- alert(
-  "AI offline încă învață.\n" +
-  "Adaugă mai multe cuvinte pentru răspunsuri mai bune."
- );
+rezultat=`<h3>${v.g}</h3>
+<p>${v.r}</p>
+<button onclick="speak('${v.g}')">🔊</button>`;
 }
-/* ===== PROFESOR AI CONVERSATIONAL OFFLINE ===== */
 
-function talkAI(){
+});
 
- let q=prompt("Conversație greacă:");
-
- if(!q) return;
-
- q=q.toLowerCase();
-
- /* salut */
-
- if(q.includes("salut") || q.includes("bună")){
-  alert("Καλημέρα! Τι κάνεις;");
-  return;
- }
-
- /* cum se spune */
-
- if(q.includes("cum se spune")){
-
-  let all=[...db.words,...expresii,...biblic];
-
-  for(let w of all){
-   if(q.includes(w.r.toLowerCase())){
-    alert(`Greacă: ${w.g}`);
-    return;
-   }
-  }
-
- }
-
- /* explicație gramatică */
-
- if(q.includes("gramatica") || q.includes("verbul")){
-  alert("Είμαι = eu sunt. Έχω = eu am.");
-  return;
- }
-
- alert("Profesor AI offline încă învață.");
+document.getElementById("rezultat").innerHTML=rezultat;
 }
-function showLectii(){
 
- content.innerHTML=lectiiBiblice.map(l=>`
-  <div class="card">
-   <h3>${l.titlu}</h3>
-   <p onclick="speak('${l.gr}')">
-    <b>${l.gr}</b><br>${l.ro}
-   </p>
-  </div>
- `).join("");
+
+/* ===== DARK MODE ===== */
+
+function toggleDark(){
+document.body.classList.toggle("dark");
+}
+
+/* ===== AI PROFESOR CONVERSAȚIONAL ===== */
+
+let lectieAI=0;
+
+const dialogAI=[
+{
+q:"Γεια σου! Πώς σε λένε;",
+astept:["με λένε"],
+corect:"Χάρηκα πολύ!"
+},
+{
+q:"Πώς είσαι;",
+astept:["καλά","πολύ καλά"],
+corect:"Χαίρομαι!"
+}
+];
+
+function aiProfesor(){
+
+lectieAI=0;
+
+content.innerHTML=`
+<h2>🎓 Profesor AI Greacă</h2>
+
+<p id="profText"></p>
+
+<input id="raspAI" placeholder="Scrie răspuns..." style="width:80%">
+<br><br>
+
+<button onclick="trimiteRaspuns()">Trimite</button>
+
+<div id="dialogAI"></div>
+`;
+
+intrebareAI();
+}
+
+function intrebareAI(){
+
+if(lectieAI>=dialogAI.length){
+document.getElementById("dialogAI").innerHTML+="<h3>Lecția terminată ✔</h3>";
+return;
+}
+
+let q=dialogAI[lectieAI].q;
+document.getElementById("profText").innerText=q;
+speak(q);
+}
+
+function trimiteRaspuns(){
+
+let text=document.getElementById("raspAI").value.toLowerCase();
+let dialog=document.getElementById("dialogAI");
+
+dialog.innerHTML+=`<p>Tu: ${text}</p>`;
+
+let ok=dialogAI[lectieAI].astept.some(c=>text.includes(c));
+
+if(ok){
+
+dialog.innerHTML+=`<p style="color:green">${dialogAI[lectieAI].corect}</p>`;
+speak(dialogAI[lectieAI].corect);
+
+lectieAI++;
+setTimeout(intrebareAI,1500);
+
+}else{
+
+dialog.innerHTML+=`<p style="color:red">Δοκίμασε ξανά</p>`;
+speak("Δοκίμασε ξανά");
+
+}
 }
